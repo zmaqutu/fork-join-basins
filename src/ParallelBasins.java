@@ -10,9 +10,12 @@ public class ParallelBasins
 	static String fileName = "4x4.txt";
 	static String outputFile;
 	static final ForkJoinPool fjPool = new ForkJoinPool();
-	static void findParallelBasins(float [][] grid, float[] array)
+	static void findParallelBasins(float [][] grid, float[] array, boolean[][] basins)
 	{
-		 fjPool.invoke(new ParallelThreads(grid,array,0,array.length));
+		ParallelThreads app = new ParallelThreads(grid,array,basins,0,array.length);
+		fjPool.invoke(app);
+		//System.out.println("There is a basin at " + app.basins[154][212]);
+		//fjPool.invoke(new ParallelThreads(grid,array,basins,0,array.length));
 	}
 	public static int[] getSize()
 	{
@@ -103,8 +106,9 @@ public class ParallelBasins
 		float [] oneDArray = getArray();
 		System.out.println("Basin Works");
 		float matrix[][] = read_from_file();
+		boolean [][] basins = new boolean[matrix.length][matrix[0].length];
 		//System.out.println(Arrays.deepToString(matrix).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
-		findParallelBasins(matrix, oneDArray);
+		findParallelBasins(matrix, oneDArray, basins);
 		//System.out.println(Arrays.toString(basinsToPrint.toArray()));
 	}
 }

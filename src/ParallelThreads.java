@@ -6,46 +6,58 @@ import java.util.Collections;
 
 public class ParallelThreads extends RecursiveAction //<ArrayList<String>>
 {
-	static int low;
-	static int high;
+	int low;
+	int high;
 	static float[][] grid;
 	static float [] array;			//this is a 1D version of my terain grid
 	static ArrayList<String> points = new ArrayList<String>();
-	static int SEQUENTIAL_CUTOFF = 1000;
-	static int startingRow,startingCol,finishingRow,finishingCol = 0;
+	static boolean [][] basins;
+	static int SEQUENTIAL_CUTOFF = 10000;
+	static int startingRow = 0;
+	static int startingCol = 1;
+	static int finishingRow = 0;
+	static int finishingCol = 1;
 
-	ParallelThreads(float [][] grid, float [] array, int low, int high)
+	ParallelThreads(float [][] grid, float [] array,boolean [][] basins, int low, int high)
 	{
 		this.grid = grid ;
 		this.array = array;
 		this.low = low;
 		this.high = high;
+		this.basins = basins;
 	}
 
 	protected void compute()
 	{
-		static boolean[][] puntas = new boolean[grid.length][grid[0].length];
 		if(high - low < SEQUENTIAL_CUTOFF)
 		{
 			for(int i = 0; i < grid.length; i++)
 			{
 				for(int j = 0; j < grid[0].length; j++)
 				{
-					if(low -1 == i * (grid[0].length) + j)
+					if(low == i * (grid[0].length) + 0)
 					{
 						startingRow = i;
-						startingCol = j;
+						//startingCol = j;
 					}
 					if(high - 1 == i * (grid[0].length) + j)
 					{
 						finishingRow = i;
-						finishingCol = j;
+						finishingCol = j-1;
 					}
 				}
 			}
-			if(startingRow == 0 || startingCol == 0) 
+			if(low == 0) 
 			{
 				startingRow = 1;
+				startingCol = 1;
+			}
+			/*if(startingRow == 0)
+			{
+				startingRow += 1;
+			}*/
+			if(startingCol != 1)
+			{
 				startingCol = 1;
 			}
 			if(finishingRow == grid.length - 1  || finishingCol == grid[0].length - 1)
@@ -53,7 +65,12 @@ public class ParallelThreads extends RecursiveAction //<ArrayList<String>>
 				finishingRow -= 1;
 				finishingCol -= 1;
 			}
-				
+			/*System.out.println("StartingRow: " + startingRow);
+			System.out.println("StartingCol: " + startingCol);
+			System.out.println("finishingRow: " + finishingRow);
+			System.out.println("finishingCol: " + finishingCol);
+			*/		
+			
 			if(startingRow != 0 && startingRow != grid.length-1 && startingCol != 0 &&
 					startingCol != grid[0].length - 1 && finishingRow != 0 && finishingRow != grid.length - 1 &&
 					finishingCol != 0 && finishingCol != grid[0].length - 1)
@@ -61,35 +78,63 @@ public class ParallelThreads extends RecursiveAction //<ArrayList<String>>
 				processMatrix();
 				System.out.println("Check working");
 			}
-			for(int p = 0; p < points.size();p++)
+			/*for(int p = 0; p < points.size();p++)
 			{
 				System.out.println(points.get(p));
+			}*/
+			for(int z = 0;z < basins.length;z++)
+			{
+				for(int a = 0; a < basins[0].length;a++)
+				{
+					if(basins[z][a])
+					{
+						System.out.println(z + " " + a);
+					}
+				}
 			}
 			
 		}
 		else
 		{
-			ParallelThreads left = new ParallelThreads(grid, array, low, (high + low) /2);
-			ParallelThreads right = new ParallelThreads(grid, array, (high + low) /2, high);
-			System.out.println("Low is now : " + low);
-			System.out.println("High is now :" + high);
-			System.out.println("My boolean has a length of " + puntas.length);
-			left.fork();
+			ParallelThreads left = new ParallelThreads(grid, array,basins, low, (high + low) /2);
+			ParallelThreads right = new ParallelThreads(grid, array,basins, (high + low) /2, high);
+			//System.out.println("Starting row is : " + startingRow);
+			//System.out.println("Finishing row is: " + finishingRow);
+			//left.fork();
+			//right.compute();
+			left.compute();
 			right.compute();
-			left.join();
+			//left.join();
+			//System.out.println(left.basins[154][212]);
+			//System.out.println(right.basins[154][212]);
+
+			for(int p = 0; p < basins.length;p++)
+			{
+				for(int q = 0; q < basins[0].length;q++)
+				{
+					basins[p][q] = left.basins[p][q] || right.basins[p][q];
+
+				}
+			}
 
 			//points.addAll(left.points.addAll(right.points));
 			//points.addAll(right.points);
 			//(left.points).addAll(right.points);
 		}
 	}
-	public static void processMatrix()
+	public void processMatrix()
 	{
 		float row1[] = new float[3];
 		float row2[] = new float[3];
 		float row3[] = new float[3];
 		float center = 0;
 
+		System.out.println("Starting row in Process is : " + startingRow);
+		System.out.println("Finishing row in Process is: " + finishingRow);
+		System.out.println("When low is : " + low + " and high is: " + high);
+		
+		
+		
 		for(int i = startingRow; i <= finishingRow; i++ )
 		{
 				for(int j = 1; j < grid[0].length - 1; j++ )// like this because I'm only splitting by row
@@ -113,8 +158,13 @@ public class ParallelThreads extends RecursiveAction //<ArrayList<String>>
 						String rowString = Integer.toString(i);
 						String colString = Integer.toString(j);
 						String coordinates = rowString.concat(" " + colString);
-						System.out.println("Is this reachable");//not reachable because of startig and finishing vals
-						points.add(coordinates);
+						basins[i][j] = true;
+						if(basins[i][j])
+						{
+							System.out.println("There is a basin at: " + i + " " + j);
+						}
+						//System.out.println("Is this reachable");//not reachable because of startig and finishing vals
+						//points.add(coordinates);
 					}
 				}
 		}
