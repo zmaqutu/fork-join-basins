@@ -6,40 +6,44 @@ import java.util.ArrayList;
 
 public class SequentialBasins
 {
-	public static void printBasinsToFile(ArrayList<Integer> basins, int count)
+	static String fileName = "4x4.txt";
+	static String outputFile;
+	public static int[] getSize()
 	{
-		System.out.println(basins);
-	}
-	public static void main(String [] args)
-	{	
-		String fileName = "4x4.txt";
-
-		File file = new File(fileName);
 		int row = 0;
 		int col = 0;
-		int count = 0;
-		ArrayList<Integer> basins; 
-
-
+		int[] matrixSize = new int[2];
+		File file = new File(fileName);
 		try
 		{
 			Scanner readSize = new Scanner(file);
 			row = readSize.nextInt();
 			col = readSize.nextInt();
-
+			matrixSize[0] = row;
+			matrixSize[1] = col;
 			readSize.close();
 		}
 		catch(FileNotFoundException e)
 		{
 			e.printStackTrace();
 		}
-		
-		float grid[][] = new float[row][col];
+		return matrixSize;
+	}
+	public static float[][] read_from_file()
+	{
+		File file = new File(fileName);
+		int [] gridSize = new int[2];
+                gridSize = getSize();
+
+                int row = gridSize[0];
+                int col = gridSize[1];
+
+                float grid[][] = new float[row][col];
 		try
 		{
 			Scanner inputStream = new Scanner(file);
-			row = inputStream.nextInt();
-			col = inputStream.nextInt();
+			inputStream.nextInt();
+			inputStream.nextInt();
 			while(inputStream.hasNext())
 			{
 				for(int i = 0; i < row;i++)
@@ -56,8 +60,45 @@ public class SequentialBasins
 		{
 			e.printStackTrace();
 		}
+		return grid;
+	}
+	public static void printBasinsToFile(int count, ArrayList<String> basins)
+	{
+		outputFile = "basins.txt";
+		try
+		{
+			PrintWriter outputStream = new PrintWriter(outputFile);
+			outputStream.println(count);
+			for(String cor: basins)
+			{
+			outputStream.print(cor + System.lineSeparator());
+			}
+			outputStream.close();
+
+		}
+		catch(FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		System.out.println(count);
+		basins.forEach(System.out::println);
+	}
+	public static void main(String [] args)
+	{
+		ArrayList<String> basins = new ArrayList<String>();
+		int row, col;
+		int count = 0;
+
+		int [] gridSize = new int[2];
+		gridSize = getSize();
+
+		row = gridSize[0];
+		col = gridSize[1];
+
+		float grid[][] = new float[row][col];
 		//System.out.println(Arrays.deepToString(grid).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
 
+		grid = read_from_file();
 		float row1[] = new float[3];
 		float row2[] = new float[3];
 		float row3[] = new float[3];
@@ -65,7 +106,7 @@ public class SequentialBasins
 
 		for(int i = 1; i < row-1; i++)
 		{
-			for(int j = 1;j < col-1; j++)
+			for(int j = 1;j < col-1; j++) //col-1 is the last index, therefore j must me less than the last index strictly
 			{
 				//Assign first row of ring
 				row1[0] = grid[i - 1][j - 1];
@@ -86,11 +127,15 @@ public class SequentialBasins
 
 				if(row1[0] >= center && row1[1] >= center && row1[2] >= center && row2[0] >= center && row2[2] >= center && row3[0] >= center && row3[1] >= center && row3[2] >= center)
 				{
-					//System.out.println("There is a basin at " + i + "," + j);
+					String rowString = Integer.toString(i);
+					String colString = Integer.toString(j);
+					String coordinates = rowString.concat(" " + colString);
+					basins.add(coordinates);
 					count++;
 				}
 			}
 		}
-		System.out.println("There are " + count + " basins");
+		printBasinsToFile(count,basins);
+		
 	}
 }
