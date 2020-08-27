@@ -7,13 +7,15 @@ import java.util.Arrays;
 
 public class ParallelBasins
 {
-	static String fileName = "4x4.txt";
+	static String fileName;
 	static String outputFile;
+	static long startTime= 0;
 	static final ForkJoinPool fjPool = new ForkJoinPool();
-	static void findParallelBasins(float [][] grid, float[] array, boolean[][] basins)
+	static boolean[][] findParallelBasins(float [][] grid, float[] array, boolean[][] basins)
 	{
 		ParallelThreads app = new ParallelThreads(grid,array,basins,0,array.length);
 		fjPool.invoke(app);
+		return app.basins;
 		//System.out.println("There is a basin at " + app.basins[154][212]);
 		//fjPool.invoke(new ParallelThreads(grid,array,basins,0,array.length));
 	}
@@ -74,6 +76,14 @@ public class ParallelBasins
 		}
 		return grid;
 	}
+	private static void tick()
+	{
+		startTime = System.nanoTime();
+	}
+	private static float tock()
+	{
+		return(System.nanoTime() - startTime) / 1000000000.0f;
+	}
 	public static float[] getArray()
 	{
 		int [] gridSize = getSize();
@@ -101,14 +111,52 @@ public class ParallelBasins
 		}
 		return array;
 	}
+	public static void printBasinsToFile(boolean[][] basins)
+	{
+		int count = 0;
+		ArrayList<String> coordinates = new ArrayList<String>();
+		//outputFile = "parallelOutput.txt";
+		for(int i = 0; i < basins.length; i++)
+		{
+			for(int j = 0; j < basins[0].length; j++)
+			{
+				if(basins[i][j])
+				{
+					count++;
+					coordinates.add(i + " " + j);
+				}
+			}
+		}
+		try
+		{
+			PrintWriter outputStream = new PrintWriter(outputFile);
+			outputStream.println(count);
+			for(String cor: coordinates)
+			{
+				outputStream.print(cor + System.lineSeparator());
+			}
+			outputStream.close();
+		}
+		catch(FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+	}
 	public static void main(String [] args)
 	{
+		fileName = args[0];
+		outputFile = args[1];
 		float [] oneDArray = getArray();
-		System.out.println("Basin Works");
+		int count = 0;
 		float matrix[][] = read_from_file();
 		boolean [][] basins = new boolean[matrix.length][matrix[0].length];
-		//System.out.println(Arrays.deepToString(matrix).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
-		findParallelBasins(matrix, oneDArray, basins);
-		//System.out.println(Arrays.toString(basinsToPrint.toArray()));
+		
+		tick();
+		basins = findParallelBasins(matrix, oneDArray, basins);
+		float time = tock();
+
+		printBasinsToFile(basins);
+
+		System.out.println("Run took " + time + " seconds");
 	}
 }
