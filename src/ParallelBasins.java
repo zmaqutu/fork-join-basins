@@ -19,6 +19,7 @@ public class ParallelBasins
 		//System.out.println("There is a basin at " + app.basins[154][212]);
 		//fjPool.invoke(new ParallelThreads(grid,array,basins,0,array.length));
 	}
+	
 	public static int[] getSize()
 	{
 		int row = 0;
@@ -111,6 +112,11 @@ public class ParallelBasins
 		}
 		return array;
 	}
+	/**
+	 * This method takes in a grid of booleans and prints them to file
+	 * @param basins -- this is a grid of booleans
+	 * @return void
+	 * */
 	public static void printBasinsToFile(boolean[][] basins)
 	{
 		int count = 0;
@@ -157,6 +163,6 @@ public class ParallelBasins
 
 		printBasinsToFile(basins);
 
-		System.out.println("Run took " + time + " seconds");
+		System.out.println(time);
 	}
 }

@@ -11,12 +11,21 @@ public class ParallelThreads extends RecursiveAction
 	float[][] grid;
 	float [] array;			//this is a 1D version of my terain grid
 	final boolean  [][] basins;
-	int SEQUENTIAL_CUTOFF = 10485760;
+	int SEQUENTIAL_CUTOFF;
 	int startingRow = 0;
 	int startingCol = 1;
 	int finishingRow = 0;
 	int finishingCol = 1;
-
+	
+	/**
+	 * This is the default constructor for the ParallelThreads class
+	 * @param grid - this is the grid we need to search for basins*   
+	 * @param array - this is the array we will be splitting*   
+	 * @param basins - this is the boolean array where we will store our basins*   
+	 * @param high - this is the upper bound for our array for split  
+	 * @param low - this is the lower bound for our array split*   
+	 *  
+	 */
 	ParallelThreads(float [][] grid, float [] array,boolean [][] basins, int low, int high)
 	{
 		this.grid = grid ;
@@ -25,9 +34,13 @@ public class ParallelThreads extends RecursiveAction
 		this.high = high;
 		this.basins = basins;
 	}
-
+	/**
+	 * This is the overridden compute method we will use to parallelise our computation
+	 * @return void
+	 * */
 	protected void compute()
 	{
+		SEQUENTIAL_CUTOFF = (grid.length * grid[0].length) / 8;
 		if(high - low < SEQUENTIAL_CUTOFF)
 		{
 			for(int i = 0; i < grid.length; i++)
@@ -100,6 +113,11 @@ public class ParallelThreads extends RecursiveAction
 
 		}
 	}
+	/**
+	 * This method only runs within our sequential block and processes the grid within the given low and high bounds
+	 * All other variables are stored globally within the class
+	 * @return void
+	 * */
 	public void processMatrix()
 	{
 		float row1[] = new float[3];
