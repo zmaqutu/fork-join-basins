@@ -1,0 +1,29 @@
+commit 3b035430e99a2eeaf4d06e39f84709c4afc15a9e
+Author: Zongo Maqutu <MQTZON001@myuct.ac.za>
+Date:   Fri Aug 28 01:45:28 2020 +0200
+
+    Final Version for submission
+
+commit 155b7cfcff13e3249d519851b451421c8a1849e1
+Author: Zongo Maqutu <MQTZON001@myuct.ac.za>
+Date:   Thu Aug 27 03:43:16 2020 +0200
+
+    Version 4: Functional Makefile java with arguments added
+
+commit 9434e4e78ea88ba96b94474a4e9afb3c4b846fb2
+Author: Zongo Maqutu <MQTZON001@myuct.ac.za>
+Date:   Wed Aug 26 18:25:25 2020 +0200
+
+    Version 3: Parallel Functionality Achieved
+
+commit 7a7f6ae568e89eae7666283865e71ed6efa6daae
+Author: Zongo Maqutu <MQTZON001@myuct.ac.za>
+Date:   Wed Aug 26 03:38:46 2020 +0200
+
+    Version2 with Parallel Functionality not Yet
+
+commit cb881ec387575c9515f52feebee2860ce8c94b1c
+Author: Zongo Maqutu <MQTZON001@myuct.ac.za>
+Date:   Sat Aug 22 14:24:24 2020 +0200
+
+    Commit 1: Sequential Basins Functional
